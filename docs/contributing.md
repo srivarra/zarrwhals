@@ -8,6 +8,8 @@ order: 5
 
 # Contributing
 
+Your help is welcome!
+
 Get started contributing to zarrwhals. We assume familiarity with git and GitHub pull requests.
 
 For more extensive tutorials, see [pyOpenSci](https://www.pyopensci.org/learn.html), [Scientific Python](https://learn.scientific-python.org/development/tutorials/), or the [scanpy developer guide](https://scanpy.readthedocs.io/en/latest/dev/index.html).
@@ -179,7 +181,7 @@ Follow [Semantic Versioning](https://semver.org/). We use [uv-ship](https://gith
 
 GitHub releases auto-publish to [PyPI](https://pypi.org/).
 
-## AI
+## AI Usage
 
 I don't care if you use AI or not, just keep [this comment in mind][ai-mindfullness].
 

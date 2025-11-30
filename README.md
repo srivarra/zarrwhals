@@ -4,8 +4,7 @@
 |---:|:---|
 | **Package** | [![PyPI][pypi-badge]][pypi-url] [![Python][python-badge]][pypi-url] [![License][license-badge]][license-url] |
 | **CI/CD** | [![Tests][tests-badge]][tests-url] [![Build][build-badge]][build-url] [![codecov][codecov-badge]][codecov-url] [![CodSpeed][codspeed-badge]][codspeed-url] |
-| **Docs** | [![Docs][docs-badge]][docs-url] |
-| **Tools** | [![Ruff][ruff-badge]][ruff-url] [![uv][uv-badge]][uv-url] [![gitmoji][gitmoji-badge]][gitmoji-url] |
+| **Docs** & **Tools** | [![Docs][docs-badge]][docs-url] [![Ruff][ruff-badge]][ruff-url] [![uv][uv-badge]][uv-url] |
 
 <!-- Badges -->
 [pypi-badge]: https://img.shields.io/pypi/v/zarrwhals?logo=pypi&labelColor=1C2C2E&color=C96329
@@ -18,7 +17,6 @@
 [docs-badge]: https://img.shields.io/readthedocs/zarrwhals?logo=readthedocs&labelColor=1C2C2E
 [ruff-badge]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
 [uv-badge]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json
-[gitmoji-badge]: https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67?labelColor=1C2C2E
 
 <!-- URLs -->
 [pypi-url]: https://pypi.org/project/zarrwhals
@@ -30,13 +28,13 @@
 [docs-url]: https://zarrwhals.readthedocs.io
 [ruff-url]: https://github.com/astral-sh/ruff
 [uv-url]: https://github.com/astral-sh/uv
-[gitmoji-url]: https://gitmoji.dev/
 
 Dataframe-agnostic Zarr storage powered by Narwhals
 
 ## Overview
 
-Zarrwhals provides a simple API for storing DataFrames in Zarr format, using [Narwhals](https://narwhals-dev.github.io/narwhals/) for DataFrame interoperability. Inspired by [AnnData](https://github.com/scverse/anndata)'s approach to storing obs/var DataFrames as Zarr Stores.
+Zarrwhals provides a simple API for storing DataFrames in Zarr format, using [Narwhals](https://narwhals-dev.github.io/narwhals/) for DataFrame interoperability.
+Inspired by [AnnData](https://github.com/scverse/anndata)'s approach to storing obs/var DataFrames as Zarr Stores.
 
 ## Quick Start
 
@@ -107,7 +105,7 @@ pip install git+https://github.com/srivarra/zarrwhals.git@main
 
 ## Release notes
 
-See the [changelog][].
+See the [changelog][changelog-link].
 
 ## Contact
 
@@ -122,5 +120,5 @@ If you found a bug, please use the [issue tracker][].
 [scverse discourse]: https://discourse.scverse.org/
 [issue tracker]: https://github.com/srivarra/zarrwhals/issues
 [documentation]: https://zarrwhals.readthedocs.io
-[changelog]: https://zarrwhals.readthedocs.io/en/latest/changelog.html
+[changelog-link]: https://zarrwhals.readthedocs.io/en/latest/changelog.html
 [api documentation]: https://zarrwhals.readthedocs.io/en/latest/api.html
