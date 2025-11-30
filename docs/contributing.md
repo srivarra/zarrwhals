@@ -39,7 +39,7 @@ This creates a `.venv` with all dev, test, doc, and bench dependencies.
 
 ## Code Style
 
-We use [pre-commit](https://pre-commit.com/) for consistent formatting. Run checks locally:
+We use [prek](https://github.com/j178/prek) for consistent formatting and other checks. Run checks locally:
 
 /// tab | uv
     new: true
