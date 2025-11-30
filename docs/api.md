@@ -1,39 +1,19 @@
-# API
+---
+title: API Reference
+summary: Function and class documentation
+description: Complete API reference for zarrwhals including to_zarr, from_zarr, and get_spec functions.
+keywords: api, reference, to_zarr, from_zarr, documentation
+order: 2
+---
 
-## Preprocessing
+# API Reference
 
-```{eval-rst}
-.. module:: zarrwhals.pp
-.. currentmodule:: zarrwhals
+## Core Functions
 
-.. autosummary::
-    :toctree: generated
+The main entry points for reading and writing DataFrames to Zarr storage.
 
-    pp.basic_preproc
-    pp.elaborate_example
-```
+::: zarrwhals.to_zarr
 
-## Tools
+::: zarrwhals.from_zarr
 
-```{eval-rst}
-.. module:: zarrwhals.tl
-.. currentmodule:: zarrwhals
-
-.. autosummary::
-    :toctree: generated
-
-    tl.basic_tool
-```
-
-## Plotting
-
-```{eval-rst}
-.. module:: zarrwhals.pl
-.. currentmodule:: zarrwhals
-
-.. autosummary::
-    :toctree: generated
-
-    pl.basic_plot
-    pl.BasicClass
-```
+::: zarrwhals.get_spec

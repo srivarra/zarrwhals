@@ -1,26 +1,51 @@
-name: Check Build
+name: Build distribution 📦
 
 on:
+  workflow_run:
+    workflows: ["Changelog ⛰️"]
+    types:
+      - completed
   push:
     branches: [main]
   pull_request:
     branches: [main]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
 jobs:
-  package:
+  build:
     runs-on: ubuntu-latest
+    name: Build distribution 📦
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.13"]
     steps:
-      - uses: actions/checkout@v5
-        with:
-          filter: blob:none
-          fetch-depth: 0
-      - name: Install uv
+      - name: Checkout ${{ github.ref }}
+        uses: actions/checkout@v5
+
+      - name: Install uv and setup Python
         uses: astral-sh/setup-uv@v7
-      - name: Build package
-        run: uv build
-      - name: Check package
-        run: uvx twine check --strict dist/*.whl
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          restore-cache: true
+          save-cache: true
+          cache-dependency-glob: "uv.lock"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Package
+        run: |
+          uv build
+
+      - name: Store Wheel Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/*.whl

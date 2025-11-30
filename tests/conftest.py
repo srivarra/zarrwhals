@@ -1,11 +1,34 @@
-import anndata as ad
+"""Pytest configuration for zarrwhals tests."""
+
+import tempfile
+from pathlib import Path
+
 import numpy as np
+import pandas as pd
 import pytest
 
 
-@pytest.fixture
-def adata():
-    adata = ad.AnnData(X=np.array([[1.2, 2.3], [3.4, 4.5], [5.6, 6.7]]).astype(np.float32))
-    adata.layers["scaled"] = np.array([[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]]).astype(np.float32)
+@pytest.fixture(scope="session")
+def rng() -> np.random.Generator:
+    """Session-scoped random number generator with fixed seed for reproducibility."""
+    return np.random.default_rng(42)
 
-    return adata
+
+@pytest.fixture
+def temp_zarr_store():
+    """Create a temporary directory for Zarr stores."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir) / "test.zarr"
+
+
+@pytest.fixture
+def sample_dataframe() -> pd.DataFrame:
+    """Standard test DataFrame with mixed types."""
+    return pd.DataFrame(
+        {
+            "int_col": [1, 2, 3],
+            "float_col": [1.1, 2.2, 3.3],
+            "str_col": ["a", "b", "c"],
+            "bool_col": [True, False, True],
+        }
+    )

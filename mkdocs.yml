@@ -1,0 +1,54 @@
+site_name: "zarrwhals"
+site_url: https://zarrwhals.readthedocs.io/
+repo_url: https://github.com/srivarra/zarrwhals
+repo_name: srivarra/zarrwhals
+
+docs_dir: docs
+
+theme:
+  name: shadcn
+  show_title: true
+  show_stargazers: true
+  topbar_sections: false
+  icon: heroicons:rectangle-stack
+  pygments_style:
+    light: shadcn-light
+    dark: github-dark
+
+nav:
+  - Home: index.md
+  - API Reference: api.md
+  - Architecture: architecture.md
+  - Changelog: changelog.md
+  - Contributing: contributing.md
+  - References: references.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            show_root_heading: true
+            show_source: false
+            members_order: source
+          inventories:
+            - "https://zarr.readthedocs.io/en/stable/objects.inv"
+            - "https://narwhals-dev.github.io/narwhals/objects.inv"
+            - "https://pandas.pydata.org/docs/objects.inv"
+            - "https://docs.dask.org/en/stable/objects.inv"
+            - "https://docs.python.org/3/objects.inv"
+
+
+markdown_extensions:
+  - admonition:
+  - fenced_code:
+  - codehilite:
+  - footnotes:
+  - pymdownx.blocks.tab:
+  - pymdownx.snippets:
+  - toc:
+      permalink: true
+  - pymdownx.superfences:
+      preserve_tabs: true

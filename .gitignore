@@ -19,3 +19,14 @@ __pycache__/
 # docs
 /docs/generated/
 /docs/_build/
+site/
+
+# AI
+.serena/
+.claude/
+
+
+# misc + data
+notes/
+htmlcov/
+*.zarr
