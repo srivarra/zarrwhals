@@ -31,7 +31,7 @@ dependencies = [
   "zarrs>=0.2.1",
 ]
 # https://docs.pypi.org/project_metadata/#project-urls
-urls.Documentation = "https://zarrwhals.readthedocs.io/"
+urls.Documentation = "https://zarrwhals.readthedocs.io/en/latest/"
 urls.Homepage = "https://github.com/srivarra/zarrwhals"
 urls.Source = "https://github.com/srivarra/zarrwhals"
 

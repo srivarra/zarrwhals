@@ -25,7 +25,7 @@
 [build-url]: https://github.com/srivarra/zarrwhals/actions/workflows/build.yaml
 [codecov-url]: https://codecov.io/gh/srivarra/zarrwhals
 [codspeed-url]: https://codspeed.io/srivarra/zarrwhals
-[docs-url]: https://zarrwhals.readthedocs.io
+[docs-url]: https://zarrwhals.readthedocs.io/en/latest/
 [ruff-url]: https://github.com/astral-sh/ruff
 [uv-url]: https://github.com/astral-sh/uv
 
