@@ -50,7 +50,7 @@ jobs:
 
       - name: Run prek (pre-commit)
         run: |
-          uvx prek run
+          uvx prek run -a
 
       - name: Install Dependencies
         run: |
