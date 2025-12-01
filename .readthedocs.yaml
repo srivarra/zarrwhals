@@ -13,4 +13,4 @@ build:
       - uv sync --group doc
     build:
       html:
-        - uv run mkdocs build -d $READTHEDOCS_OUTPUT/html
+        - uv run mkdocs build --strict -d $READTHEDOCS_OUTPUT/html
