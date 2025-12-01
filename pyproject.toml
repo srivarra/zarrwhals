@@ -120,14 +120,9 @@ lint.pydocstyle.convention = "numpy"
 
 [tool.pytest]
 minversion = "9.0"
-strict = true # Enables strict_markers, strict_config, xfail_strict
+strict = true                           # Enables strict_markers, strict_config, xfail_strict
 testpaths = [ "tests" ]
 addopts = [ "--import-mode=importlib" ]
-markers = [
-  "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-  "integration: integration tests requiring external resources",
-  "hypothesis: property-based tests",
-]
 
 [tool.coverage.run]
 source = [ "zarrwhals" ]
@@ -135,18 +130,6 @@ concurrency = [ "multiprocessing" ]
 parallel = true
 patch = [ "subprocess" ]
 omit = [ "**/test_*.py" ]
-
-[tool.cruft]
-skip = [
-  "tests",
-  "src/**/__init__.py",
-  "src/**/basic.py",
-  "docs/api.md",
-  "docs/changelog.md",
-  "docs/references.bib",
-  "docs/references.md",
-  "docs/notebooks/example.ipynb",
-]
 
 [tool.uv-ship]
 release-branch = "main"

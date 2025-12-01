@@ -145,7 +145,6 @@ class TestDaskBackendValidation:
             zw.from_zarr(temp_zarr_store, backend="dask", lazy=False)
 
 
-@pytest.mark.slow
 class TestDaskLargeData:
     """Test Dask with larger datasets."""
 
