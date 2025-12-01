@@ -53,7 +53,7 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/annsel
+      url: https://test.pypi.org/p/zarrwhals
 
     permissions:
       id-token: write # IMPORTANT: mandatory for trusted publishing
@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/annsel
+      url: https://pypi.org/p/zarrwhals
     permissions:
       id-token: write # IMPORTANT: mandatory for trusted publishing
 
@@ -90,7 +90,7 @@ jobs:
           path: dist/
 
       - name: Publish Distributions 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.12.3
+        uses: pypa/gh-action-pypi-publish@v1.13.0
         with:
           verbose: true
 
@@ -112,7 +112,7 @@ jobs:
           name: dist
           path: dist/
       - name: Sign the dists with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v3.0.0
+        uses: sigstore/gh-action-sigstore-python@v3.1.0
         with:
           inputs: >-
             ./dist/*.tar.gz
