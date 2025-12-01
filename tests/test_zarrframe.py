@@ -5,9 +5,9 @@ from __future__ import annotations
 import pandas as pd
 import polars as pl
 import pytest
-from zarrwhals.lazy import ZarrFrame
 
 import zarrwhals as zw
+from zarrwhals.zarrframe import ZarrFrame
 
 
 class TestZarrFrameConstruction:

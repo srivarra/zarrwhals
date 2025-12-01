@@ -5,15 +5,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Literal, TypeGuard
 
+import narwhals as nw
 import numpy as np
 from zarr.core.dtype import DataTypeValidationError, DTypeJSON, ZDType
+
+from .base import ZarrV3OnlyMixin
 
 if TYPE_CHECKING:
     from zarr.core.common import JSON, ZarrFormat
 
 
 @dataclass(frozen=True)
-class ZNarwhalsTime(ZDType):
+class ZNarwhalsTime(ZarrV3OnlyMixin, ZDType):
     """Custom Zarr v3 dtype for Narwhals Time (time-of-day without date).
 
     Stores time as int64 representing time since midnight in the specified unit.
@@ -43,6 +46,11 @@ class ZNarwhalsTime(ZDType):
     dtype_cls: ClassVar[type] = np.int64  # Time since midnight
 
     time_unit: Literal["ns", "us", "ms", "s"] = "ns"
+
+    @property
+    def nw_dtype(self) -> nw.DType:
+        """Return corresponding Narwhals dtype."""
+        return nw.Time
 
     def to_json(self, zarr_format: ZarrFormat) -> dict:
         """Serialize to Zarr v3 JSON format."""
@@ -80,27 +88,6 @@ class ZNarwhalsTime(ZDType):
             raise DataTypeValidationError(msg)
 
         return cls(time_unit=time_unit)  # type: ignore[arg-type]
-
-    @classmethod
-    def _check_json_v2(cls, _data: DTypeJSON) -> TypeGuard[dict]:
-        """Zarr v2 not supported."""
-        return False
-
-    @classmethod
-    def _from_json_v2(cls, _data: DTypeJSON) -> ZNarwhalsTime:
-        """Zarr v2 not supported."""
-        msg = "ZNarwhalsTime only supports Zarr v3, not v2"
-        raise DataTypeValidationError(msg)
-
-    @classmethod
-    def from_native_dtype(cls, dtype: np.dtype) -> ZNarwhalsTime:
-        """Prevent auto-inference to avoid conflicts."""
-        msg = (
-            f"ZNarwhalsTime cannot be inferred from numpy dtype {dtype}. "
-            "Use explicit construction: ZNarwhalsTime(time_unit='ns'|'us'|'ms'|'s'). "
-            "This prevents registry conflicts with standard Int64 dtype."
-        )
-        raise DataTypeValidationError(msg)
 
     def to_native_dtype(self) -> np.dtype:
         """Convert to NumPy int64 dtype (no datetime64 equivalent for time-only)."""

@@ -5,15 +5,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Literal, TypeGuard
 
+import narwhals as nw
 import numpy as np
 from zarr.core.dtype import DataTypeValidationError, DTypeJSON, ZDType
+
+from .base import ZarrV3OnlyMixin
 
 if TYPE_CHECKING:
     from zarr.core.common import JSON, ZarrFormat
 
 
 @dataclass(frozen=True)
-class ZNarwhalsCategoricalCodes(ZDType):
+class ZNarwhalsCategoricalCodes(ZarrV3OnlyMixin, ZDType):
     """Custom Zarr v3 dtype for categorical codes array.
 
     Stores integer codes that index into the categories array. Codes range from
@@ -46,6 +49,11 @@ class ZNarwhalsCategoricalCodes(ZDType):
     dtype_cls: ClassVar[type] = np.int32
 
     ordered: bool = False
+
+    @property
+    def nw_dtype(self) -> nw.DType:
+        """Return corresponding Narwhals dtype."""
+        return nw.Categorical
 
     def to_json(self, zarr_format: ZarrFormat) -> dict:
         """Serialize dtype to Zarr v3 JSON format.
@@ -120,76 +128,6 @@ class ZNarwhalsCategoricalCodes(ZDType):
         ordered = config.get("ordered", False)
 
         return cls(ordered=ordered)
-
-    @classmethod
-    def _check_json_v2(cls, _data: DTypeJSON) -> TypeGuard[dict]:
-        """Zarr v2 not supported - always returns False.
-
-        Parameters
-        ----------
-        _data : str or dict
-            JSON data to validate (unused)
-
-        Returns
-        -------
-        bool
-            Always False (v2 not supported)
-        """
-        return False
-
-    @classmethod
-    def _from_json_v2(cls, _data: DTypeJSON) -> ZNarwhalsCategoricalCodes:
-        """Zarr v2 not supported - always raises error.
-
-        Parameters
-        ----------
-        data : dict
-            JSON dict with name
-
-        Returns
-        -------
-        ZCategoricalCodes
-            Deserialized categorical codes dtype instance
-
-        Raises
-        ------
-        ValueError
-            If JSON format is invalid
-        """
-        msg = "ZCategoricalCodes only supports Zarr v3, not v2"
-        raise DataTypeValidationError(msg)
-
-    @classmethod
-    def from_native_dtype(cls, dtype: np.dtype) -> ZNarwhalsCategoricalCodes:
-        """Convert NumPy dtype to ZCategoricalCodes.
-
-        This method should NOT be used for automatic dtype inference from regular arrays.
-        It will raise an error to prevent conflicts with standard Int32 dtype.
-
-        ZCategoricalCodes should only be created explicitly via the constructor
-        with the desired ordered specification.
-
-        Parameters
-        ----------
-        dtype : np.dtype
-            NumPy dtype (int32)
-
-        Returns
-        -------
-        ZCategoricalCodes
-            Never - always raises error
-
-        Raises
-        ------
-        DataTypeValidationError
-            Always raised - this dtype requires explicit configuration via constructor
-        """
-        msg = (
-            f"ZCategoricalCodes cannot be inferred from numpy dtype {dtype}. "
-            f"Use explicit construction: ZCategoricalCodes(ordered=True|False). "
-            f"This prevents registry conflicts with standard Int32 dtype."
-        )
-        raise DataTypeValidationError(msg)
 
     def to_native_dtype(self) -> np.dtype:
         """Convert to NumPy dtype.
@@ -300,7 +238,7 @@ class ZNarwhalsCategoricalCodes(ZDType):
 
 
 @dataclass(frozen=True)
-class ZNarwhalsCategoricalCategories(ZDType):
+class ZNarwhalsCategoricalCategories(ZarrV3OnlyMixin, ZDType):
     """Custom Zarr v3 dtype for categorical categories array.
 
     Stores the unique category values with preserved dtype (int64, float64, or string).
@@ -433,67 +371,6 @@ class ZNarwhalsCategoricalCategories(ZDType):
             raise DataTypeValidationError(msg)
 
         return cls(inner_dtype=inner_dtype)  # type: ignore[arg-type]
-
-    @classmethod
-    def _check_json_v2(cls, _data: DTypeJSON) -> TypeGuard[dict]:
-        """Zarr v2 not supported - always returns False.
-
-        Parameters
-        ----------
-        _data : str or dict
-            JSON data to validate (unused)
-
-        Returns
-        -------
-        bool
-            Always False (v2 not supported)
-        """
-        return False
-
-    @classmethod
-    def _from_json_v2(cls, _data: DTypeJSON) -> ZNarwhalsCategoricalCategories:
-        """Zarr v2 not supported - always raises error.
-
-        Parameters
-        ----------
-        data : dict
-            JSON dict
-
-        Raises
-        ------
-        DataTypeValidationError
-            Always raised - v2 not supported
-        """
-        msg = "ZCategoricalCategories only supports Zarr v3, not v2"
-        raise DataTypeValidationError(msg)
-
-    @classmethod
-    def from_native_dtype(cls, dtype: np.dtype) -> ZNarwhalsCategoricalCategories:
-        """Convert NumPy dtype to ZCategoricalCategories.
-
-        This method should NOT be used for automatic dtype inference from regular arrays.
-        It will raise an error to prevent conflicts with standard Int64/Float64/String dtypes.
-
-        ZCategoricalCategories should only be created explicitly via the constructor
-        with the desired inner_dtype specification.
-
-        Parameters
-        ----------
-        dtype : np.dtype
-            NumPy dtype of categories array
-
-        Returns
-        -------
-        ZCategoricalCategories
-            Never - always raises error
-
-        Raises
-        ------
-        DataTypeValidationError
-            Always raised - this dtype requires explicit configuration via constructor
-        """
-        msg = f"ZCategoricalCategories cannot be inferred from numpy dtype {dtype}. "
-        raise DataTypeValidationError(msg)
 
     def to_native_dtype(self) -> np.dtype:
         """Convert to NumPy dtype based on inner_dtype.

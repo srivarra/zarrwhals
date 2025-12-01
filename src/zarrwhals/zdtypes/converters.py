@@ -17,7 +17,7 @@ __all__ = [
 def zdtype_to_narwhals(zdtype: ZDType) -> nw.DType | None:
     """Convert ZDType metadata to Narwhals dtype.
 
-    Uses the ZDType's configuration to reconstruct the corresponding Narwhals dtype.
+    Uses the ZDType's nw_dtype property to get the corresponding Narwhals dtype.
     This is the primary decoding path for stores using custom ZDTypes.
 
     Parameters
@@ -29,7 +29,7 @@ def zdtype_to_narwhals(zdtype: ZDType) -> nw.DType | None:
     -------
     narwhals.DType or None
         Corresponding Narwhals dtype object, or None if the ZDType is not a
-        custom Narwhals dtype (e.g., standard Zarr numeric types).
+        custom Narwhals dtype (e.g., standard Zarr types).
 
     Examples
     --------
@@ -42,88 +42,12 @@ def zdtype_to_narwhals(zdtype: ZDType) -> nw.DType | None:
 
     Notes
     -----
-    - ZNarwhalsDatetime → nw.Datetime (with time_unit and time_zone)
-    - ZNarwhalsDuration → nw.Duration (with time_unit)
-    - ZNarwhalsDate → nw.Date
-    - ZNarwhalsTime → nw.Time
-    - ZNarwhalsBinary → nw.Binary
-    - ZNarwhalsList → nw.List (with inner dtype)
-    - ZNarwhalsStruct → nw.Struct (with fields)
-    - ZNarwhalsArray → nw.Array (with inner dtype and shape)
-    - ZNarwhalsDecimal → nw.Decimal (with precision and scale)
-    - ZNarwhalsObject → nw.Object
-    - ZNarwhalsUnknown → nw.Unknown
-    - ZNarwhalsEnum → nw.Enum (categories from metadata)
-    - ZNarwhalsCategoricalCodes → nw.Categorical
-    - Other ZDTypes → None (no casting needed)
-
+    All ZNarwhals* types have an `nw_dtype` property that returns the corresponding
+    Narwhals dtype.
     """
-    from . import (
-        ZNarwhalsArray,
-        ZNarwhalsBinary,
-        ZNarwhalsCategoricalCodes,
-        ZNarwhalsDate,
-        ZNarwhalsDatetime,
-        ZNarwhalsDecimal,
-        ZNarwhalsDuration,
-        ZNarwhalsEnum,
-        ZNarwhalsList,
-        ZNarwhalsObject,
-        ZNarwhalsStruct,
-        ZNarwhalsTime,
-        ZNarwhalsUnknown,
-    )
-
-    # Temporal types
-    if isinstance(zdtype, ZNarwhalsDatetime):
-        kwargs = {"time_unit": zdtype.time_unit}
-        if zdtype.time_zone:
-            kwargs["time_zone"] = zdtype.time_zone
-        return nw.Datetime(**kwargs)
-
-    if isinstance(zdtype, ZNarwhalsDuration):
-        return nw.Duration(time_unit=zdtype.time_unit)
-
-    if isinstance(zdtype, ZNarwhalsDate):
-        return nw.Date
-
-    if isinstance(zdtype, ZNarwhalsTime):
-        return nw.Time
-
-    # Binary
-    if isinstance(zdtype, ZNarwhalsBinary):
-        return nw.Binary
-
-    # Nested types
-    if isinstance(zdtype, ZNarwhalsList):
-        inner = _parse_inner_dtype(zdtype.inner_dtype)
-        return nw.List(inner)
-
-    if isinstance(zdtype, ZNarwhalsStruct):
-        fields = {name: _parse_inner_dtype(dtype_str) for name, dtype_str in zdtype.fields}
-        return nw.Struct(fields)
-
-    if isinstance(zdtype, ZNarwhalsArray):
-        inner = _parse_inner_dtype(zdtype.inner_dtype)
-        return nw.Array(inner, zdtype.shape)
-
-    # Decimal
-    if isinstance(zdtype, ZNarwhalsDecimal):
-        return nw.Decimal
-
-    # Categorical types
-    if isinstance(zdtype, ZNarwhalsEnum):
-        return nw.Enum(zdtype.categories)
-
-    if isinstance(zdtype, ZNarwhalsCategoricalCodes):
-        return nw.Categorical
-
-    # Fallback types
-    if isinstance(zdtype, ZNarwhalsObject):
-        return nw.Object
-
-    if isinstance(zdtype, ZNarwhalsUnknown):
-        return nw.Unknown
+    # Duck typing: if the ZDType has an nw_dtype property, use it
+    if hasattr(zdtype, "nw_dtype"):
+        return zdtype.nw_dtype
 
     # Unknown ZDType (e.g., standard Zarr numeric types) - return None to skip casting
     return None

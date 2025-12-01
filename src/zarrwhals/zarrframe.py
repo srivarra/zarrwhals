@@ -1,10 +1,7 @@
-"""Lazy DataFrame backed by Zarr storage.
+"""DataFrame backed by Zarr storage.
 
-Provides ZarrFrame, an internal lazy DataFrame implementation that defers
-I/O until materialization. This is used internally by from_zarr() to optimize
-column projection and lazy loading.
-
-Uses Zarr's async API for parallel column reads when collecting data.
+Provides ZarrFrame, an internal DataFrame implementation that defers
+I/O until materialization.
 """
 
 from __future__ import annotations

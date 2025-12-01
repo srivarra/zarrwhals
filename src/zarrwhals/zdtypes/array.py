@@ -5,15 +5,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, TypeGuard
 
+import narwhals as nw
 import numpy as np
 from zarr.core.dtype import DataTypeValidationError, DTypeJSON, ZDType
+
+from .base import ZarrV3OnlyMixin
 
 if TYPE_CHECKING:
     from zarr.core.common import JSON, ZarrFormat
 
 
 @dataclass(frozen=True)
-class ZNarwhalsArray(ZDType):
+class ZNarwhalsArray(ZarrV3OnlyMixin, ZDType):
     """Custom Zarr v3 dtype for Narwhals Array (fixed-shape arrays per row).
 
     Stores fixed-shape arrays as multidimensional arrays with inner dtype info.
@@ -46,6 +49,13 @@ class ZNarwhalsArray(ZDType):
 
     inner_dtype: str = "Float64"
     shape: tuple[int, ...] = (1,)
+
+    @property
+    def nw_dtype(self) -> nw.Array:
+        """Return corresponding Narwhals dtype."""
+        from .converters import _parse_inner_dtype
+
+        return nw.Array(_parse_inner_dtype(self.inner_dtype), self.shape)
 
     def to_json(self, zarr_format: ZarrFormat) -> dict:
         """Serialize to Zarr v3 JSON format."""
@@ -83,27 +93,6 @@ class ZNarwhalsArray(ZDType):
         shape = tuple(config["shape"])
 
         return cls(inner_dtype=inner_dtype, shape=shape)
-
-    @classmethod
-    def _check_json_v2(cls, _data: DTypeJSON) -> TypeGuard[dict]:
-        """Zarr v2 not supported."""
-        return False
-
-    @classmethod
-    def _from_json_v2(cls, _data: DTypeJSON) -> ZNarwhalsArray:
-        """Zarr v2 not supported."""
-        msg = "ZNarwhalsArray only supports Zarr v3, not v2"
-        raise DataTypeValidationError(msg)
-
-    @classmethod
-    def from_native_dtype(cls, dtype: np.dtype) -> ZNarwhalsArray:
-        """Prevent auto-inference to avoid conflicts."""
-        msg = (
-            f"ZNarwhalsArray cannot be inferred from numpy dtype {dtype}. "
-            "Use explicit construction: ZNarwhalsArray(inner_dtype='Float32', shape=(3,)). "
-            "This prevents registry conflicts."
-        )
-        raise DataTypeValidationError(msg)
 
     def to_native_dtype(self) -> np.dtype:
         """Convert to NumPy dtype based on inner_dtype."""

@@ -5,15 +5,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, TypeGuard
 
+import narwhals as nw
 import numpy as np
 from zarr.core.dtype import DataTypeValidationError, DTypeJSON, ZDType
+
+from .base import ZarrV3OnlyMixin
 
 if TYPE_CHECKING:
     from zarr.core.common import JSON, ZarrFormat
 
 
 @dataclass(frozen=True)
-class ZNarwhalsList(ZDType):
+class ZNarwhalsList(ZarrV3OnlyMixin, ZDType):
     """Custom Zarr v3 dtype for Narwhals List (variable-length lists).
 
     Stores lists as JSON-serialized strings with inner dtype information.
@@ -43,6 +46,13 @@ class ZNarwhalsList(ZDType):
     dtype_cls: ClassVar[type] = np.object_  # JSON-serialized strings
 
     inner_dtype: str = "String"
+
+    @property
+    def nw_dtype(self) -> nw.List:
+        """Return corresponding Narwhals dtype."""
+        from .converters import _parse_inner_dtype
+
+        return nw.List(_parse_inner_dtype(self.inner_dtype))
 
     def to_json(self, zarr_format: ZarrFormat) -> dict:
         """Serialize to Zarr v3 JSON format."""
@@ -76,27 +86,6 @@ class ZNarwhalsList(ZDType):
         inner_dtype = config["inner_dtype"]
 
         return cls(inner_dtype=inner_dtype)
-
-    @classmethod
-    def _check_json_v2(cls, _data: DTypeJSON) -> TypeGuard[dict]:
-        """Zarr v2 not supported."""
-        return False
-
-    @classmethod
-    def _from_json_v2(cls, _data: DTypeJSON) -> ZNarwhalsList:
-        """Zarr v2 not supported."""
-        msg = "ZNarwhalsList only supports Zarr v3, not v2"
-        raise DataTypeValidationError(msg)
-
-    @classmethod
-    def from_native_dtype(cls, dtype: np.dtype) -> ZNarwhalsList:
-        """Prevent auto-inference to avoid conflicts."""
-        msg = (
-            f"ZNarwhalsList cannot be inferred from numpy dtype {dtype}. "
-            "Use explicit construction: ZNarwhalsList(inner_dtype='Int64'). "
-            "This prevents registry conflicts with standard Object dtype."
-        )
-        raise DataTypeValidationError(msg)
 
     def to_native_dtype(self) -> np.dtype:
         """Convert to NumPy object dtype (for JSON strings)."""

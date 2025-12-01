@@ -5,15 +5,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, TypeGuard
 
+import narwhals as nw
 import numpy as np
 from zarr.core.dtype import DataTypeValidationError, DTypeJSON, ZDType
+
+from .base import ZarrV3OnlyMixin
 
 if TYPE_CHECKING:
     from zarr.core.common import JSON, ZarrFormat
 
 
 @dataclass(frozen=True)
-class ZNarwhalsDate(ZDType):
+class ZNarwhalsDate(ZarrV3OnlyMixin, ZDType):
     """Custom Zarr v3 dtype for Narwhals Date (calendar date without time).
 
     Stores dates as int32 representing days since Unix epoch (1970-01-01).
@@ -38,6 +41,11 @@ class ZNarwhalsDate(ZDType):
 
     _zarr_v3_name: ClassVar[str] = "narwhals.date"
     dtype_cls: ClassVar[type] = np.int32  # Days since epoch
+
+    @property
+    def nw_dtype(self) -> nw.DType:
+        """Return corresponding Narwhals dtype."""
+        return nw.Date
 
     def to_json(self, zarr_format: ZarrFormat) -> dict:
         """Serialize to Zarr v3 JSON format."""
@@ -64,27 +72,6 @@ class ZNarwhalsDate(ZDType):
             msg = f"Invalid v3 JSON for {cls._zarr_v3_name}: {data}"
             raise DataTypeValidationError(msg)
         return cls()
-
-    @classmethod
-    def _check_json_v2(cls, _data: DTypeJSON) -> TypeGuard[dict]:
-        """Zarr v2 not supported."""
-        return False
-
-    @classmethod
-    def _from_json_v2(cls, _data: DTypeJSON) -> ZNarwhalsDate:
-        """Zarr v2 not supported."""
-        msg = "ZNarwhalsDate only supports Zarr v3, not v2"
-        raise DataTypeValidationError(msg)
-
-    @classmethod
-    def from_native_dtype(cls, dtype: np.dtype) -> ZNarwhalsDate:
-        """Prevent auto-inference to avoid conflicts."""
-        msg = (
-            f"ZNarwhalsDate cannot be inferred from numpy dtype {dtype}. "
-            "Use explicit construction: ZNarwhalsDate(). "
-            "This prevents registry conflicts with standard Int32 dtype."
-        )
-        raise DataTypeValidationError(msg)
 
     def to_native_dtype(self) -> np.dtype:
         """Convert to NumPy datetime64[D] dtype."""

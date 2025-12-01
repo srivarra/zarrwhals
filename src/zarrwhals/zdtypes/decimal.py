@@ -5,15 +5,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, TypeGuard
 
+import narwhals as nw
 import numpy as np
 from zarr.core.dtype import DataTypeValidationError, DTypeJSON, ZDType
+
+from .base import ZarrV3OnlyMixin
 
 if TYPE_CHECKING:
     from zarr.core.common import JSON, ZarrFormat
 
 
 @dataclass(frozen=True)
-class ZNarwhalsDecimal(ZDType):
+class ZNarwhalsDecimal(ZarrV3OnlyMixin, ZDType):
     """Custom Zarr v3 dtype for Narwhals Decimal (arbitrary precision).
 
     Stores decimals as string representations to preserve full precision.
@@ -46,6 +49,11 @@ class ZNarwhalsDecimal(ZDType):
 
     precision: int | None = None
     scale: int | None = None
+
+    @property
+    def nw_dtype(self) -> nw.DType:
+        """Return corresponding Narwhals dtype."""
+        return nw.Decimal
 
     def to_json(self, zarr_format: ZarrFormat) -> dict:
         """Serialize to Zarr v3 JSON format."""
@@ -80,27 +88,6 @@ class ZNarwhalsDecimal(ZDType):
         scale = config.get("scale")
 
         return cls(precision=precision, scale=scale)
-
-    @classmethod
-    def _check_json_v2(cls, _data: DTypeJSON) -> TypeGuard[dict]:
-        """Zarr v2 not supported."""
-        return False
-
-    @classmethod
-    def _from_json_v2(cls, _data: DTypeJSON) -> ZNarwhalsDecimal:
-        """Zarr v2 not supported."""
-        msg = "ZNarwhalsDecimal only supports Zarr v3, not v2"
-        raise DataTypeValidationError(msg)
-
-    @classmethod
-    def from_native_dtype(cls, dtype: np.dtype) -> ZNarwhalsDecimal:
-        """Prevent auto-inference to avoid conflicts."""
-        msg = (
-            f"ZNarwhalsDecimal cannot be inferred from numpy dtype {dtype}. "
-            "Use explicit construction: ZNarwhalsDecimal(precision=10, scale=2). "
-            "This prevents registry conflicts with standard Object dtype."
-        )
-        raise DataTypeValidationError(msg)
 
     def to_native_dtype(self) -> np.dtype:
         """Convert to NumPy object dtype (for string representation)."""

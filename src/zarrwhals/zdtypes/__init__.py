@@ -11,7 +11,9 @@ from __future__ import annotations
 from zarr.core.dtype import data_type_registry
 
 from .array import ZNarwhalsArray
+from .base import SimpleZDType, ZarrV3OnlyMixin
 from .binary import ZNarwhalsBinary
+from .boolean import ZNarwhalsBoolean
 from .categorical import (
     ZNarwhalsCategoricalCategories,
     ZNarwhalsCategoricalCodes,
@@ -31,12 +33,18 @@ from .int32 import ZNarwhalsInt32
 from .int64 import ZNarwhalsInt64
 from .list import ZNarwhalsList
 from .object import ZNarwhalsObject
+from .string import ZNarwhalsString
 from .struct import ZNarwhalsStruct
 from .time import ZNarwhalsTime
+from .uint8 import ZNarwhalsUInt8
+from .uint16 import ZNarwhalsUInt16
+from .uint32 import ZNarwhalsUInt32
+from .uint64 import ZNarwhalsUInt64
 from .unknown import ZNarwhalsUnknown
 
 data_type_registry.register(ZNarwhalsArray._zarr_v3_name, ZNarwhalsArray)
 data_type_registry.register(ZNarwhalsBinary._zarr_v3_name, ZNarwhalsBinary)
+data_type_registry.register(ZNarwhalsBoolean._zarr_v3_name, ZNarwhalsBoolean)
 data_type_registry.register(ZNarwhalsCategoricalCodes._zarr_v3_name, ZNarwhalsCategoricalCodes)
 data_type_registry.register(ZNarwhalsCategoricalCategories._zarr_v3_name, ZNarwhalsCategoricalCategories)
 data_type_registry.register(ZNarwhalsDate._zarr_v3_name, ZNarwhalsDate)
@@ -52,13 +60,20 @@ data_type_registry.register(ZNarwhalsInt32._zarr_v3_name, ZNarwhalsInt32)
 data_type_registry.register(ZNarwhalsInt64._zarr_v3_name, ZNarwhalsInt64)
 data_type_registry.register(ZNarwhalsList._zarr_v3_name, ZNarwhalsList)
 data_type_registry.register(ZNarwhalsObject._zarr_v3_name, ZNarwhalsObject)
+data_type_registry.register(ZNarwhalsString._zarr_v3_name, ZNarwhalsString)
 data_type_registry.register(ZNarwhalsStruct._zarr_v3_name, ZNarwhalsStruct)
 data_type_registry.register(ZNarwhalsTime._zarr_v3_name, ZNarwhalsTime)
+data_type_registry.register(ZNarwhalsUInt8._zarr_v3_name, ZNarwhalsUInt8)
+data_type_registry.register(ZNarwhalsUInt16._zarr_v3_name, ZNarwhalsUInt16)
+data_type_registry.register(ZNarwhalsUInt32._zarr_v3_name, ZNarwhalsUInt32)
+data_type_registry.register(ZNarwhalsUInt64._zarr_v3_name, ZNarwhalsUInt64)
 data_type_registry.register(ZNarwhalsUnknown._zarr_v3_name, ZNarwhalsUnknown)
 
 __all__ = [
+    "SimpleZDType",
     "ZNarwhalsArray",
     "ZNarwhalsBinary",
+    "ZNarwhalsBoolean",
     "ZNarwhalsCategoricalCategories",
     "ZNarwhalsCategoricalCodes",
     "ZNarwhalsDate",
@@ -74,9 +89,15 @@ __all__ = [
     "ZNarwhalsInt64",
     "ZNarwhalsList",
     "ZNarwhalsObject",
+    "ZNarwhalsString",
     "ZNarwhalsStruct",
     "ZNarwhalsTime",
+    "ZNarwhalsUInt8",
+    "ZNarwhalsUInt16",
+    "ZNarwhalsUInt32",
+    "ZNarwhalsUInt64",
     "ZNarwhalsUnknown",
+    "ZarrV3OnlyMixin",
     "get_categorical_codes",
     "zdtype_to_narwhals",
 ]

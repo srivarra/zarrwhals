@@ -1,4 +1,4 @@
-"""Unknown data type for Narwhals unknown encoding in Zarr v3."""
+"""String data type for Narwhals string encoding in Zarr v3."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, ClassVar, TypeGuard
 
 import narwhals as nw
 import numpy as np
+from numpy.dtypes import StringDType
 from zarr.core.dtype import DataTypeValidationError, DTypeJSON, ZDType
 
 from .base import ZarrV3OnlyMixin
@@ -16,39 +17,41 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class ZNarwhalsUnknown(ZarrV3OnlyMixin, ZDType):
-    """Custom Zarr v3 dtype for Narwhals Unknown (unrecognized types).
+class ZNarwhalsString(ZarrV3OnlyMixin, ZDType):
+    """Custom Zarr v3 dtype for Narwhals String (variable-length UTF-8).
 
-    Stores unknown data as JSON-serialized strings. Used as a fallback
-    when the actual type cannot be determined.
+    Stores variable-length UTF-8 strings with explicit type tracking.
+    This preserves String semantics through Zarr storage round-trips.
 
     Examples
     --------
-    >>> from zarrwhals.zdtypes import ZNarwhalsUnknown
-    >>> dtype = ZNarwhalsUnknown()
+    >>> from zarrwhals.zdtypes import ZNarwhalsString
+    >>> dtype = ZNarwhalsString()
     >>> dtype.to_json(zarr_format=3)
-    {'name': 'narwhals.unknown', 'configuration': {}}
+    {'name': 'narwhals.string', 'configuration': {}}
+
+    >>> dtype.to_native_dtype()
+    dtype('StringDType')
 
     Notes
     -----
-    - Registered as "narwhals.unknown" (ZEP0009 compliant)
-    - Stores as VariableLengthUTF8 (JSON strings)
-    - Fallback for unrecognized types
+    - Registered as "narwhals.string" (ZEP0009 compliant)
+    - Stores as NumPy StringDType (variable-length UTF-8)
     - Zarr v3 only
     """
 
-    _zarr_v3_name: ClassVar[str] = "narwhals.unknown"
-    dtype_cls: ClassVar[type] = np.object_  # JSON-serialized strings
+    _zarr_v3_name: ClassVar[str] = "narwhals.string"
+    dtype_cls: ClassVar[type] = str
 
     @property
     def nw_dtype(self) -> nw.DType:
         """Return corresponding Narwhals dtype."""
-        return nw.Unknown
+        return nw.String
 
     def to_json(self, zarr_format: ZarrFormat) -> dict:
         """Serialize to Zarr v3 JSON format."""
         if zarr_format != 3:
-            msg = f"ZNarwhalsUnknown only supports Zarr v3, got format {zarr_format}"
+            msg = f"ZNarwhalsString only supports Zarr v3, got format {zarr_format}"
             raise ValueError(msg)
 
         return {
@@ -64,7 +67,7 @@ class ZNarwhalsUnknown(ZarrV3OnlyMixin, ZDType):
         return data.get("name") == cls._zarr_v3_name
 
     @classmethod
-    def _from_json_v3(cls, data: DTypeJSON) -> ZNarwhalsUnknown:
+    def _from_json_v3(cls, data: DTypeJSON) -> ZNarwhalsString:
         """Deserialize from Zarr v3 JSON."""
         if not cls._check_json_v3(data):
             msg = f"Invalid v3 JSON for {cls._zarr_v3_name}: {data}"
@@ -72,34 +75,31 @@ class ZNarwhalsUnknown(ZarrV3OnlyMixin, ZDType):
         return cls()
 
     def to_native_dtype(self) -> np.dtype:
-        """Convert to NumPy object dtype."""
-        return np.dtype(object)
+        """Convert to NumPy StringDType."""
+        return np.dtype(StringDType())
 
     def _check_scalar(self, data: object) -> bool:
-        """Check if data is valid unknown scalar (any JSON-serializable)."""
-        return True  # Accept anything, will serialize to JSON
+        """Check if data is valid string scalar."""
+        return isinstance(data, str)
 
-    def _cast_scalar_unchecked(self, data: object) -> str:
-        """Cast scalar to JSON string."""
-        import json
-
-        return json.dumps(data, default=str)
+    def _cast_scalar_unchecked(self, data: str) -> str:
+        """Cast scalar to string."""
+        return str(data)
 
     def cast_scalar(self, data: object) -> str:
-        """Cast object to unknown scalar (JSON string)."""
+        """Cast object to string scalar."""
+        if not self._check_scalar(data):
+            msg = f"Cannot cast {type(data)} to string"
+            raise TypeError(msg)
         return self._cast_scalar_unchecked(data)
 
     def default_scalar(self) -> str:
-        """Default unknown scalar (null as JSON)."""
-        return "null"
+        """Default string scalar (empty string)."""
+        return ""
 
     def from_json_scalar(self, data: JSON, *, zarr_format: ZarrFormat) -> str:
         """Deserialize scalar from JSON."""
-        import json
-
-        if isinstance(data, str):
-            return data  # Already JSON string
-        return json.dumps(data, default=str)
+        return str(data)
 
     def to_json_scalar(self, data: object, *, zarr_format: ZarrFormat) -> JSON:
         """Serialize scalar to JSON."""

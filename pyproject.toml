@@ -118,11 +118,15 @@ lint.per-file-ignores."docs/*" = [ "I" ]
 lint.per-file-ignores."tests/*" = [ "D" ]
 lint.pydocstyle.convention = "numpy"
 
-[tool.pytest.ini_options]
+[tool.pytest]
+minversion = "9.0"
+strict = true # Enables strict_markers, strict_config, xfail_strict
 testpaths = [ "tests" ]
-xfail_strict = true
-addopts = [
-  "--import-mode=importlib", # allow using test files with same name
+addopts = [ "--import-mode=importlib" ]
+markers = [
+  "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+  "integration: integration tests requiring external resources",
+  "hypothesis: property-based tests",
 ]
 
 [tool.coverage.run]

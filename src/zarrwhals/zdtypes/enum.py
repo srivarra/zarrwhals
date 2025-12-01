@@ -5,15 +5,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, TypeGuard
 
+import narwhals as nw
 import numpy as np
 from zarr.core.dtype import DataTypeValidationError, DTypeJSON, ZDType
+
+from .base import ZarrV3OnlyMixin
 
 if TYPE_CHECKING:
     from zarr.core.common import JSON, ZarrFormat
 
 
 @dataclass(frozen=True)
-class ZNarwhalsEnum(ZDType):
+class ZNarwhalsEnum(ZarrV3OnlyMixin, ZDType):
     """Custom Zarr v3 dtype for Narwhals Enum (ordered categorical with fixed categories).
 
     Unlike Categorical (dynamic categories from data), Enum has predefined categories
@@ -49,6 +52,11 @@ class ZNarwhalsEnum(ZDType):
 
     categories: tuple = ()
     ordered: bool = True
+
+    @property
+    def nw_dtype(self) -> nw.Enum:
+        """Return corresponding Narwhals dtype."""
+        return nw.Enum(list(self.categories))
 
     def to_json(self, zarr_format: ZarrFormat) -> dict:
         """Serialize to Zarr v3 JSON format."""
@@ -86,27 +94,6 @@ class ZNarwhalsEnum(ZDType):
         ordered = config.get("ordered", True)
 
         return cls(categories=categories, ordered=ordered)
-
-    @classmethod
-    def _check_json_v2(cls, _data: DTypeJSON) -> TypeGuard[dict]:
-        """Zarr v2 not supported."""
-        return False
-
-    @classmethod
-    def _from_json_v2(cls, _data: DTypeJSON) -> ZNarwhalsEnum:
-        """Zarr v2 not supported."""
-        msg = "ZEnum only supports Zarr v3, not v2"
-        raise DataTypeValidationError(msg)
-
-    @classmethod
-    def from_native_dtype(cls, dtype: np.dtype) -> ZNarwhalsEnum:
-        """Prevent auto-inference."""
-        msg = (
-            f"ZEnum cannot be inferred from numpy dtype {dtype}. "
-            f"Use explicit construction: ZEnum(categories=(...), ordered=True). "
-            f"This prevents registry conflicts with standard Int32 dtype."
-        )
-        raise DataTypeValidationError(msg)
 
     def to_native_dtype(self) -> np.dtype:
         """Convert to NumPy dtype (int32 for enum codes)."""
